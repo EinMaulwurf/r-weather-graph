@@ -1,11 +1,13 @@
+# rdwd::updateRdwd() # Wichtig, sonst werden die korrekten Dateien nicht gefunden!
+
 library(dplyr)
-library(rdwd)
+library(rdwd) # Muss aktuellste Version sein!
 
 # findID("Frankfurt/Main", exactmatch = FALSE)
 
-link <- selectDWD("Frankfurt/Main", res="daily", var="kl", per="hr")
-file <- dataDWD(link, read=FALSE, dir = "data/dwd_raw")
-clim <- readDWD(file, varnames=TRUE, hr = 4)
+link <- selectDWD("Frankfurt/Main", res = "daily", var = "kl", per = "hr")
+file <- dataDWD(link, read = FALSE, dir = "data")
+clim <- readDWD(file, varnames = TRUE, hr = 4)
 
 clim_clean <- clim %>%
   as_tibble() %>%
