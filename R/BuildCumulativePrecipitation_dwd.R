@@ -10,10 +10,11 @@ library(scales) # Explicitly load for date formatting if needed
 # --- 1. Data Loading and Preparation ---
 
 # Read the file
-clim_data_raw <- readRDS("data/clim_clean.rds")
+clim_data_raw <- read.csv2("data/clim_clean.csv")
 
 # Prepare the data structure
 clim_data <- clim_data_raw %>%
+  mutate(datum = ymd(datum)) %>%
   # Rename columns
   rename(
     date = datum,

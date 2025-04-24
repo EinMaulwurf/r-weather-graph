@@ -7,4 +7,5 @@
 *.html
 data/*
 !data/README.md
+!data/clim_clean.csv
 renv/

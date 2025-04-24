@@ -18,11 +18,11 @@ Um Daten für eine andere Station zu verwenden:
 1. Finden Sie die gewünschte Stations-ID über das [DWD CDC Portal](https://cdc.dwd.de/portal/) oder die [Stationslisten](https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl/historical/KL_Tageswerte_Beschreibung_Stationen.txt).
 2. Passen Sie den Stationsnamen (oder die ID) im Skript `R/Retrieve_dwd.R` an.
 
-Das Skript `R/Retrieve_dwd.R` lädt die historischen und kürzlichen Tagesdaten (`*.zip`) für die angegebene Station vom DWD FTP-Server herunter (gespeichert in `data/dwd_raw/`), verarbeitet diese und speichert die kombinierten, bereinigten Klimadaten im effizienten [Apache Parquet](https://parquet.apache.org/)-Format unter `data/clim_clean.parquet`.
+Das Skript `R/Retrieve_dwd.R` lädt die historischen und kürzlichen Tagesdaten (`*.zip`) für die angegebene Station vom DWD FTP-Server herunter (gespeichert in `data/dwd_raw/`), verarbeitet diese und speichert die kombinierten, bereinigten Klimadaten als CSV-Datei unter `data/clim_clean.csv`.
 
 ## Grafik replizieren oder anpassen
 
-Die Grafiken werden aus der Datei `data/clim_clean.parquet` generiert:
+Die Grafiken werden aus der Datei `data/clim_clean.csv` generiert:
 
 - Die Grafik `graphs/DailyHighTemp_dwd.png` wird durch das Skript `R/BuildDailyHigh_dwd.R` erstellt.
 - Die Grafik `graphs/AnnualCumulativePrecipitation_dwd.png` wird durch das Skript `R/BuildCumulativePrecipitation_dwd.R` erstellt.
@@ -31,8 +31,9 @@ Die Grafiken werden aus der Datei `data/clim_clean.parquet` generiert:
 
 Der automatisierte Workflow in [/.github/workflows](/.github/workflows) führt regelmäßig folgende Schritte aus:
 
-1. Führt das Skript `R/Retrieve_dwd.R` aus, um die DWD-Daten herunterzuladen und `data/clim_clean.parquet` zu aktualisieren.
-2. Führt die Skripte `R/BuildDailyHigh_dwd.R` und `R/BuildCumulativePrecipitation_dwd.R` aus, um die Grafiken im `graphs/`-Ordner neu zu erstellen.
-3. Committet die aktualisierte Parquet-Datei (`data/clim_clean.parquet`) und die neuen Grafiken (`graphs/*.png`) in das Repository.
+1. Erstellt neue R Umgebung und installiert die benötigten Pakete aus dem lockfile mit `renv`.
+2. Führt das Skript `R/Retrieve_dwd.R` aus, um die DWD-Daten herunterzuladen und `data/clim_clean.csv` zu aktualisieren.
+3. Führt die Skripte `R/BuildDailyHigh_dwd.R` und `R/BuildCumulativePrecipitation_dwd.R` aus, um die Grafiken im `graphs/`-Ordner neu zu erstellen.
+4. Committet die aktualisierte CSV-Datei (`data/clim_clean.csv`) und die neuen Grafiken (`graphs/*.png`) in das Repository.
 
 Der gesamte Vorgang dauert pro Durchlauf typischerweise etwa 1-2 Minuten.

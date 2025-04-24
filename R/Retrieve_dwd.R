@@ -20,4 +20,5 @@ clim_clean <- clim %>%
     nieder = rsk_niederschlagshoehe
   )
 
-saveRDS(clim_clean, "data/clim_clean.rds")
+# saveRDS(clim_clean, "data/clim_clean.rds")
+write.csv2(clim_clean, "data/clim_clean.csv")

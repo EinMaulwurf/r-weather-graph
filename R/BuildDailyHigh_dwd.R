@@ -9,10 +9,11 @@ library(ggrepel)
 # --- 1. Data Loading and Preparation ---
 
 # Read the file
-clim_data_raw <- readRDS("data/clim_clean.rds")
+clim_data_raw <- read.csv2("data/clim_clean.csv")
 
 # Prepare the data structure similar to the original 'ghcn' dataframe
 clim_data <- clim_data_raw %>%
+  mutate(datum = ymd(datum)) %>%
   # Rename columns to match expectations or make them explicit
   rename(
     date = datum, # Original script used 'date' frequently
