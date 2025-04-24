@@ -1,6 +1,5 @@
 # Load necessary libraries
 library(ggplot2)
-library(arrow) # For reading parquet files
 library(tidyr)
 library(dplyr)
 library(lubridate)
@@ -10,8 +9,8 @@ library(scales) # Explicitly load for date formatting if needed
 
 # --- 1. Data Loading and Preparation ---
 
-# Read the parquet file
-clim_data_raw <- read_parquet("data/clim_clean.parquet")
+# Read the file
+clim_data_raw <- readRDS("data/clim_clean.rds")
 
 # Prepare the data structure
 clim_data <- clim_data_raw %>%

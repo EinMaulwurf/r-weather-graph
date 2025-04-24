@@ -20,4 +20,4 @@ clim_clean <- clim %>%
     nieder = rsk_niederschlagshoehe
   )
 
-arrow::write_parquet(clim_clean, "data/clim_clean.parquet")
+saveRDS(clim_clean, "data/clim_clean.rds")
