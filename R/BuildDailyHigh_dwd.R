@@ -12,7 +12,7 @@ library(ggrepel)
 clim_data_raw <- readRDS("data/clim_clean.rds")
 
 # Prepare the data structure similar to the original 'ghcn' dataframe
-clim_data <- clim_data %>%
+clim_data <- clim_data_raw %>%
   # Rename columns to match expectations or make them explicit
   rename(
     date = datum, # Original script used 'date' frequently
