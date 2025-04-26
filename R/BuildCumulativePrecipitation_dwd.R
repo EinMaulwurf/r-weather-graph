@@ -41,11 +41,6 @@ clim_data <- clim_data_raw %>%
 
 # --- 2. Determine Current Year and Date Range ---
 
-# Check if data is present
-if (nrow(clim_data) == 0) {
-  stop("No data found in the loaded file.")
-}
-
 year.to.plot <- max(clim_data$year)
 last.date <- max(clim_data$date[clim_data$year == year.to.plot]) # Ensure last.date is from the year being plotted
 first.date <- min(clim_data$date) # Get the earliest date for the caption
@@ -111,7 +106,7 @@ daily.summary.stats <- past.years %>%
 
 # Percentile labels for the end of the year (last date available in stats)
 # This should now correctly be Dec 31 (or Dec 30 if non-leap year plot)
-last_stat_date <- max(daily.summary.stats$date, na.rm=TRUE)
+last_stat_date <- max(daily.summary.stats$date, na.rm = TRUE)
 
 pctile.labels <- daily.summary.stats %>%
   filter(date == last_stat_date) %>%
@@ -230,11 +225,8 @@ dir.create("graphs", showWarnings = FALSE)
 
 # Save the plot (Keep user's filename and dimensions)
 ggsave("graphs/AnnualCumulativePrecipitation_dwd.png",
-       plot = cum.precip.graph,
-       width = 8, height = 4
+  plot = cum.precip.graph,
+  width = 8, height = 4
 )
 
-print("Plot saved to graphs/AnnualCumulativePrecipitation_dwd.png")
-
-# Optional: display the plot in the R session plot viewer
-print(cum.precip.graph)
+# cum.precip.graph

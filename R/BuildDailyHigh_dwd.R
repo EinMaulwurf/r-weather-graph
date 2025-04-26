@@ -57,8 +57,8 @@ daily.summary.stats <- clim_data %>%
   group_by(month, day, name) %>%
   # Calculate summary stats (check if infinite values are produced if all values are NA)
   summarise(
-    max = if (all(is.na(value))) NA else max(value, na.rm = TRUE),
-    min = if (all(is.na(value))) NA else min(value, na.rm = TRUE),
+    max = max(value, na.rm = TRUE),
+    min = min(value, na.rm = TRUE),
     x5 = quantile(value, 0.05, na.rm = TRUE),
     x20 = quantile(value, 0.2, na.rm = TRUE),
     x40 = quantile(value, 0.4, na.rm = TRUE),
@@ -199,9 +199,6 @@ max.graph <- daily.summary.stats %>%
   )
 
 # --- 6. Create and Add Custom Legend ---
-# !! NB: The positioning of this legend is empirical (days 165-201, vertical shift).
-# !! You MAY need to adjust the day_of_year range and the vertical shift
-# !! depending on your data's typical values during that period to avoid overlaps.
 
 legend.y.shift <- -30 # <-- Keep your tuned value
 
@@ -342,4 +339,4 @@ ggsave("graphs/DailyHighTemp_dwd.png",
   width = 8, height = 4
 )
 
-max.graph2
+# max.graph2
