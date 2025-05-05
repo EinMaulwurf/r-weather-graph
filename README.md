@@ -37,3 +37,7 @@ Der automatisierte Workflow in [/.github/workflows](/.github/workflows) führt r
 4. Committet die aktualisierte CSV-Datei (`data/clim_clean.csv`) und die neuen Grafiken (`graphs/*.png`) in das Repository.
 
 Der gesamte Vorgang dauert pro Durchlauf typischerweise etwa 1-2 Minuten.
+
+## Sonstiges
+
+Das `rdwd` Paket muss in der aktuellsten Version verwendet werden. Ansonsten kann es Probleme beim Download geben. Daher sollte entweder direkt die Version von GitHub installiert werden (`pak::pak("brry/rdwd")` oder `remotes::install_github("brry/rdwd")`) oder der Updater via `rdwd::updateRdwd()` genutzt werden. Wenn `renv` verwendet wird, sollte die aktuellste Version automatisch installiert werden.

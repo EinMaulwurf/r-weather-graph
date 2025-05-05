@@ -1,12 +1,10 @@
-# rdwd::updateRdwd() # Wichtig, sonst werden die korrekten Dateien nicht gefunden!
-
 library(dplyr)
-library(rdwd) # Muss aktuellste Version sein!
+library(rdwd) # Muss aktuellste Version sein! Version von CRAN eventuell veraltet. Verwende rdwd::updateRdwd() oder installiere von GitHub.
 
 # findID("Frankfurt/Main", exactmatch = FALSE)
 
 link <- selectDWD("Frankfurt/Main", res = "daily", var = "kl", per = "hr")
-file <- dataDWD(link, read = FALSE, dir = "data")
+file <- dataDWD(link, read = FALSE, dir = "data", force = TRUE)
 clim <- readDWD(file, varnames = TRUE, hr = 4)
 
 clim_clean <- clim %>%
@@ -20,5 +18,4 @@ clim_clean <- clim %>%
     nieder = rsk_niederschlagshoehe
   )
 
-# saveRDS(clim_clean, "data/clim_clean.rds")
 write.csv2(clim_clean, "data/clim_clean.csv")
