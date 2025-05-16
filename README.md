@@ -41,3 +41,9 @@ Der gesamte Vorgang dauert pro Durchlauf typischerweise etwa 1-2 Minuten.
 ## Sonstiges
 
 Das `rdwd` Paket muss in der aktuellsten Version verwendet werden. Ansonsten kann es Probleme beim Download geben. Daher sollte entweder direkt die Version von GitHub installiert werden (`pak::pak("brry/rdwd")` oder `remotes::install_github("brry/rdwd")`) oder der Updater via `rdwd::updateRdwd()` genutzt werden. Wenn `renv` verwendet wird, sollte die aktuellste Version automatisch installiert werden.
+
+Zum clonen des Repositories kann
+```bash
+git clone --depth 1 git@github.com:EinMaulwurf/r-weather-graph.git
+```
+verwendet werden, dadurch werden nicht alle commits geclont. Durch die täglichen commits der Abbildungen wird das Repository nämlich mit der Zeit ziemlich groß.
