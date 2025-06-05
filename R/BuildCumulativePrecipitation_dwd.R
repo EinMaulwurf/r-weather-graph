@@ -38,7 +38,6 @@ clim_data <- clim_data_raw %>%
 # Add day_of_year AFTER cumsum, just for reference if needed later
 # mutate(day_of_year = yday(date)) # Not strictly needed for this plot logic
 
-
 # --- 2. Determine Current Year and Date Range ---
 
 year.to.plot <- max(clim_data$year)
@@ -62,7 +61,9 @@ past.years <- clim_data %>%
 
 # Check if there are any past years left after filtering
 if (nrow(past.years) == 0) {
-  stop("No complete past years found in the data to calculate historical ranges.")
+  stop(
+    "No complete past years found in the data to calculate historical ranges."
+  )
 }
 
 # --- 4. Calculate Historical Summary Statistics (Grouped by Month/Day) ---
@@ -84,7 +85,10 @@ daily.summary.stats <- past.years %>%
     .groups = "drop" # Explicitly drop grouping
   ) %>%
   # Ensure stats are valid numbers
-  mutate(across(c(max, min, starts_with("x")), ~ ifelse(is.infinite(.x) | is.nan(.x), NA, .x))) %>% # Handle NaN as well
+  mutate(across(
+    c(max, min, starts_with("x")),
+    ~ ifelse(is.infinite(.x) | is.nan(.x), NA, .x)
+  )) %>% # Handle NaN as well
   # Create a date column *within the plot year* for alignment
   mutate(
     month_num = as.numeric(month),
@@ -110,7 +114,11 @@ last_stat_date <- max(daily.summary.stats$date, na.rm = TRUE)
 
 pctile.labels <- daily.summary.stats %>%
   filter(date == last_stat_date) %>%
-  pivot_longer(cols = c(max, min, starts_with("x")), names_to = "pctile", values_to = "precip") %>%
+  pivot_longer(
+    cols = c(max, min, starts_with("x")),
+    names_to = "pctile",
+    values_to = "precip"
+  ) %>%
   mutate(
     pctile = case_when(
       str_sub(pctile, 1, 1) == "x" ~ paste0(str_sub(pctile, 2, -1), "%"),
@@ -123,7 +131,10 @@ pctile.labels <- daily.summary.stats %>%
   )
 
 # Determine dynamic Y-axis limits based on the FULL historical range
-y_max_limit <- ceiling(max(c(daily.summary.stats$max, this.year$cum_precip), na.rm = TRUE) / 100) * 100 # Adjusted divisor for potentially large values
+y_max_limit <- ceiling(
+  max(c(daily.summary.stats$max, this.year$cum_precip), na.rm = TRUE) / 100
+) *
+  100 # Adjusted divisor for potentially large values
 # Keep user's y_break logic, ensure it covers the new max
 y_breaks <- seq(0, y_max_limit, by = ifelse(y_max_limit > 1000, 200, 100))
 
@@ -133,18 +144,49 @@ cum.precip.graph <- daily.summary.stats %>%
   # Main plot call using date for x-axis from the full year stats
   ggplot(aes(x = date)) +
   # Historical range ribbons mapped to date (will cover the full year)
-  geom_ribbon(aes(ymin = min, ymax = max), fill = "#bdc9e1", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(aes(ymin = x5, ymax = x95), fill = "#74a9cf", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(aes(ymin = x20, ymax = x80), fill = "#2b8cbe", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(aes(ymin = x40, ymax = x60), fill = "#045a8d", alpha = 0.8, na.rm = TRUE) +
+  geom_ribbon(
+    aes(ymin = min, ymax = max),
+    fill = "#bdc9e1",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    aes(ymin = x5, ymax = x95),
+    fill = "#74a9cf",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    aes(ymin = x20, ymax = x80),
+    fill = "#2b8cbe",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    aes(ymin = x40, ymax = x60),
+    fill = "#045a8d",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
   # Horizontal lines for reference
-  geom_hline(yintercept = y_breaks, linetype = "dotted", linewidth = 0.3, colour = "gray") +
+  geom_hline(
+    yintercept = y_breaks,
+    linetype = "dotted",
+    linewidth = 0.3,
+    colour = "gray"
+  ) +
   # This year's cumulative precipitation line (data from 'this.year' stops at last.date)
-  geom_line(data = this.year, aes(x = date, y = cum_precip), linewidth = 1, color = "black") +
+  geom_line(
+    data = this.year,
+    aes(x = date, y = cum_precip),
+    linewidth = 1,
+    color = "black"
+  ) +
   # Label for the last point of the current year
   ggrepel::geom_label_repel(
     # Ensure data has rows before trying to filter
-    data = if (nrow(this.year) > 0) filter(this.year, date == max(date)) else this.year,
+    data = if (nrow(this.year) > 0) filter(this.year, date == max(date)) else
+      this.year,
     aes(x = date, y = cum_precip, label = paste(round(cum_precip, 1), "mm")), # Map x=date
     point.padding = unit(1.5, "lines"),
     segment.color = "grey50",
@@ -161,15 +203,19 @@ cum.precip.graph <- daily.summary.stats %>%
   geom_segment(
     data = pctile.labels,
     aes(
-      x = label_date + days(1), xend = label_date + days(5), # Extend segment using date calculation
-      y = precip, yend = precip
+      x = label_date + days(1),
+      xend = label_date + days(5), # Extend segment using date calculation
+      y = precip,
+      yend = precip
     ),
     color = "grey40"
   ) +
   geom_text(
     data = pctile.labels,
     aes(x = label_date + days(6), y = precip, label = pctile), # Position text using date calculation
-    hjust = 0, size = 2.5, color = "grey20"
+    hjust = 0,
+    size = 2.5,
+    color = "grey20"
   ) +
   # Scales
   scale_y_continuous(
@@ -190,9 +236,16 @@ cum.precip.graph <- daily.summary.stats %>%
   labs(
     title = paste("Kumulierter Niederschlag in", "Frankfurt am Main"),
     subtitle = paste0(
-      "Linie zeigt kumulierten Niederschlag für ", year.to.plot, ". ",
-      "Bänder decken den historischen Bereich ab (", min(past.years$year), "-", max(past.years$year), "). ",
-      "Stand ", format(last.date, "%d.%m.%Y.") # Use the actual last date of data for the current year
+      "Linie zeigt kumulierten Niederschlag für ",
+      year.to.plot,
+      ". ",
+      "Bänder decken den historischen Bereich ab (",
+      min(past.years$year),
+      "-",
+      max(past.years$year),
+      "). ",
+      "Stand ",
+      format(last.date, "%d.%m.%Y.") # Use the actual last date of data for the current year
     ),
     # caption = paste( # Keep caption commented as per user code
     #   "Quelle: Deutscher Wetterdienst.",
@@ -208,7 +261,11 @@ cum.precip.graph <- daily.summary.stats %>%
     panel.grid.major.y = element_blank(), # User theme removes grid lines
     panel.grid.minor.y = element_blank(),
     panel.grid.major.x = element_blank(), # User theme removes grid lines
-    panel.grid.minor.x = element_line(linetype = "dotted", linewidth = 0.3, colour = "gray"), # Keep minor x grid
+    panel.grid.minor.x = element_line(
+      linetype = "dotted",
+      linewidth = 0.3,
+      colour = "gray"
+    ), # Keep minor x grid
     plot.background = element_rect(fill = "linen", colour = "linen"),
     plot.title.position = "plot",
     plot.title = element_text(face = "bold", size = 16),
@@ -224,9 +281,11 @@ cum.precip.graph <- daily.summary.stats %>%
 dir.create("graphs", showWarnings = FALSE)
 
 # Save the plot (Keep user's filename and dimensions)
-ggsave("graphs/AnnualCumulativePrecipitation_dwd.png",
+ggsave(
+  "graphs/AnnualCumulativePrecipitation_dwd.png",
   plot = cum.precip.graph,
-  width = 8, height = 4
+  width = 8,
+  height = 4
 )
 
 # cum.precip.graph

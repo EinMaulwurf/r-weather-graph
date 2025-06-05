@@ -9,7 +9,7 @@ library(rdwd) # Muss aktuellste Version sein! Version von CRAN eventuell veralte
 # link <- selectDWD("Frankfurt/Main", res = "daily", var = "kl", per = "hr")
 
 link <- c(
-  "ftp://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl/historical/tageswerte_KL_01420_19350701_20241231_hist.zip", 
+  "ftp://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl/historical/tageswerte_KL_01420_19350701_20241231_hist.zip",
   "ftp://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/daily/kl/recent/tageswerte_KL_01420_akt.zip"
 )
 

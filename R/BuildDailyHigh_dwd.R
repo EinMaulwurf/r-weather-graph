@@ -52,7 +52,11 @@ daily.summary.stats <- clim_data %>%
   # Select relevant columns including the new derived month/day
   select(month, day, PRCP, TMAX, TMIN) %>%
   # Pivot longer using the weather variable names
-  pivot_longer(cols = c(PRCP, TMAX, TMIN), names_to = "name", values_to = "value") %>%
+  pivot_longer(
+    cols = c(PRCP, TMAX, TMIN),
+    names_to = "name",
+    values_to = "value"
+  ) %>%
   filter(!is.na(value)) %>% # Added filter for NA values before calculating stats
   group_by(month, day, name) %>%
   # Calculate summary stats (check if infinite values are produced if all values are NA)
@@ -95,44 +99,87 @@ if (!is.leap.year) {
 
 record.status.this.year <- this.year %>%
   select(date, month, day, PRCP, TMAX, TMIN) %>% # Include date for joining if needed later
-  pivot_longer(cols = c(PRCP, TMAX, TMIN), names_to = "name", values_to = "this_year") %>%
+  pivot_longer(
+    cols = c(PRCP, TMAX, TMIN),
+    names_to = "name",
+    values_to = "this_year"
+  ) %>%
   # Join with the summary stats based on month, day, and variable name
-  inner_join(daily.summary.stats %>% select(month, day, name, min, max),
+  inner_join(
+    daily.summary.stats %>% select(month, day, name, min, max),
     by = c("month", "day", "name")
   ) %>%
-  mutate(record_status = case_when(
-    this_year > max ~ "max",
-    this_year < min ~ "min",
-    TRUE ~ "none"
-  )) %>%
+  mutate(
+    record_status = case_when(
+      this_year > max ~ "max",
+      this_year < min ~ "min",
+      TRUE ~ "none"
+    )
+  ) %>%
   filter(record_status != "none") %>%
   # Add the date back in for plotting points correctly
-  left_join(this.year %>% select(date, month, day), by = c("date", "month", "day"))
+  left_join(
+    this.year %>% select(date, month, day),
+    by = c("date", "month", "day")
+  )
 
 
 # --- 5. Create the Main Plot (Max Temperature Focus) ---
 
 # Define y-axis limits dynamically or use reasonable defaults
 # Let's calculate based on observed range +/- buffer
-y_min_limit <- ceiling(min(daily.summary.stats$min[daily.summary.stats$name == "TMIN"]) / 10) * 10
-y_max_limit <- floor(max(daily.summary.stats$max[daily.summary.stats$name == "TMAX"]) / 10) * 10
+y_min_limit <- ceiling(
+  min(daily.summary.stats$min[daily.summary.stats$name == "TMIN"]) / 10
+) *
+  10
+y_max_limit <- floor(
+  max(daily.summary.stats$max[daily.summary.stats$name == "TMAX"]) / 10
+) *
+  10
 y_breaks <- seq(y_min_limit, y_max_limit, 10)
 
 max.graph <- daily.summary.stats %>%
   filter(name == "TMAX") %>%
   ggplot(aes(x = date)) +
   # Historical range ribbons
-  geom_ribbon(aes(ymin = min, ymax = max), fill = "#bdc9e1", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(aes(ymin = x5, ymax = x95), fill = "#74a9cf", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(aes(ymin = x20, ymax = x80), fill = "#2b8cbe", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(aes(ymin = x40, ymax = x60), fill = "#045a8d", alpha = 0.8, na.rm = TRUE) +
+  geom_ribbon(
+    aes(ymin = min, ymax = max),
+    fill = "#bdc9e1",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    aes(ymin = x5, ymax = x95),
+    fill = "#74a9cf",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    aes(ymin = x20, ymax = x80),
+    fill = "#2b8cbe",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    aes(ymin = x40, ymax = x60),
+    fill = "#045a8d",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
   # y-axis breaks lines (adjust colour/linewidth if needed)
   # geom_hline(yintercept = y_breaks, color = "white", linewidth = 0.2) +
-  geom_hline(yintercept = y_breaks, linetype = "dotted", linewidth = 0.3, colour = "gray") +
+  geom_hline(
+    yintercept = y_breaks,
+    linetype = "dotted",
+    linewidth = 0.3,
+    colour = "gray"
+  ) +
   # This year's line
   geom_line(
     data = this.year %>% filter(!is.na(TMAX)), # Ensure no NAs break the line
-    aes(y = TMAX), linewidth = 0.8, color = "black"
+    aes(y = TMAX),
+    linewidth = 0.8,
+    color = "black"
   ) + # Slightly thinner, black line
   # Points for records set this year
   geom_point(
@@ -141,7 +188,9 @@ max.graph <- daily.summary.stats %>%
       name == "TMAX",
       record_status == "max"
     ),
-    aes(y = this_year), color = "red", size = 2
+    aes(y = this_year),
+    color = "red",
+    size = 2
   ) +
   geom_point(
     data = filter(
@@ -149,7 +198,9 @@ max.graph <- daily.summary.stats %>%
       name == "TMAX",
       record_status == "min"
     ),
-    aes(y = this_year), color = "blue", size = 2
+    aes(y = this_year),
+    color = "blue",
+    size = 2
   ) +
   # Scales
   scale_y_continuous(
@@ -172,9 +223,16 @@ max.graph <- daily.summary.stats %>%
   labs(
     title = paste("Tageshöchsttemperatur in", "Frankfurt am Main"),
     subtitle = paste0(
-      "Linie zeigt Tageshöchsttemperatur für ", year.to.plot, ". ",
-      "Bänder decken den historischen Bereich ab (", year(first.date), "-", year.to.plot - 1, "). ",
-      "Stand ", format(last.date, "%d.%m.%Y.")
+      "Linie zeigt Tageshöchsttemperatur für ",
+      year.to.plot,
+      ". ",
+      "Bänder decken den historischen Bereich ab (",
+      year(first.date),
+      "-",
+      year.to.plot - 1,
+      "). ",
+      "Stand ",
+      format(last.date, "%d.%m.%Y.")
     ),
     # caption = paste(
     #   "Records from", format(first.date, "%B %d, %Y"), "to", format(last.date, "%B %d, %Y"), ".",
@@ -189,7 +247,11 @@ max.graph <- daily.summary.stats %>%
     panel.grid.major.y = element_blank(),
     panel.grid.minor.y = element_blank(),
     panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_line(linetype = "dotted", linewidth = 0.3, colour = "gray"),
+    panel.grid.minor.x = element_line(
+      linetype = "dotted",
+      linewidth = 0.3,
+      colour = "gray"
+    ),
     plot.background = element_rect(fill = "linen", colour = "linen"),
     plot.title.position = "plot",
     plot.title = element_text(face = "bold", size = 16),
@@ -237,8 +299,22 @@ mid_pt2_y <- legend.df$x80[legend.df$day_of_year == mid_pt2_doy][1]
 
 # Create a tibble with only the KEY points for the line
 legend.line.key.points <- tibble(
-  day_of_year = c(min(legend_doy_range), mid_pt1_doy, min_pt_doy, mid_pt2_doy, max_pt_doy, max(legend_doy_range)),
-  temp = c(start_pt_y, mid_pt1_y, min_pt_y_line, mid_pt2_y, max_pt_y_line, end_pt_y)
+  day_of_year = c(
+    min(legend_doy_range),
+    mid_pt1_doy,
+    min_pt_doy,
+    mid_pt2_doy,
+    max_pt_doy,
+    max(legend_doy_range)
+  ),
+  temp = c(
+    start_pt_y,
+    mid_pt1_y,
+    min_pt_y_line,
+    mid_pt2_y,
+    max_pt_y_line,
+    end_pt_y
+  )
 ) %>%
   # Remove rows where temp could not be calculated (if data was missing on that day)
   filter(!is.na(temp)) %>%
@@ -247,38 +323,57 @@ legend.line.key.points <- tibble(
 
 # Interpolate between the key points to create a full line
 legend.line.df <- tibble(day_of_year = legend_doy_range) %>%
-  mutate(temp = approx(legend.line.key.points$day_of_year, legend.line.key.points$temp, xout = day_of_year)$y) %>%
-  mutate(date = make_date(year = year.to.plot, month = 1, day = 1) + days(day_of_year - 1))
+  mutate(
+    temp = approx(
+      legend.line.key.points$day_of_year,
+      legend.line.key.points$temp,
+      xout = day_of_year
+    )$y
+  ) %>%
+  mutate(
+    date = make_date(year = year.to.plot, month = 1, day = 1) +
+      days(day_of_year - 1)
+  )
 
 
 # --- Define positions for the annotation DOTS ---
 # Place dots slightly outside the line's min/max for visibility
 min_pt_y_dot <- legend.df$min[legend.df$day_of_year == min_pt_doy][1] - 0.5
 max_pt_y_dot <- legend.df$max[legend.df$day_of_year == max_pt_doy][1] + 0.5
-min_pt_date <- make_date(year = year.to.plot, month = 1, day = 1) + days(min_pt_doy - 1)
-max_pt_date <- make_date(year = year.to.plot, month = 1, day = 1) + days(max_pt_doy - 1)
+min_pt_date <- make_date(year = year.to.plot, month = 1, day = 1) +
+  days(min_pt_doy - 1)
+max_pt_date <- make_date(year = year.to.plot, month = 1, day = 1) +
+  days(max_pt_doy - 1)
 
 
 # Prepare labels for the ribbon elements (same as before)
 legend.labels <- legend.df %>%
-  pivot_longer(cols = c(max, min, starts_with("x")), names_to = "levels", values_to = "value") %>%
-  mutate(label = case_when(
-    levels == "max" ~ "Historisches Max.",
-    levels == "min" ~ "Historisches Min.",
-    levels == "x95" ~ "95% Perzentil",
-    levels == "x80" ~ "80%",
-    levels == "x60" ~ "60%",
-    levels == "x40" ~ "40%",
-    levels == "x20" ~ "20%",
-    levels == "x5" ~ "5% Perzentil",
-    TRUE ~ levels # Fallback
-  )) %>%
+  pivot_longer(
+    cols = c(max, min, starts_with("x")),
+    names_to = "levels",
+    values_to = "value"
+  ) %>%
+  mutate(
+    label = case_when(
+      levels == "max" ~ "Historisches Max.",
+      levels == "min" ~ "Historisches Min.",
+      levels == "x95" ~ "95% Perzentil",
+      levels == "x80" ~ "80%",
+      levels == "x60" ~ "60%",
+      levels == "x40" ~ "40%",
+      levels == "x20" ~ "20%",
+      levels == "x5" ~ "5% Perzentil",
+      TRUE ~ levels # Fallback
+    )
+  ) %>%
   # Position labels at the start/end of the legend range
-  mutate(filter_day = ifelse(
-    levels %in% c("max", "x80", "x40", "x5"),
-    min(day_of_year),
-    max(day_of_year)
-  )) %>%
+  mutate(
+    filter_day = ifelse(
+      levels %in% c("max", "x80", "x40", "x5"),
+      min(day_of_year),
+      max(day_of_year)
+    )
+  ) %>%
   filter(day_of_year == filter_day) %>%
   # Ensure value is not NA before plotting label
   filter(!is.na(value))
@@ -287,43 +382,100 @@ legend.labels <- legend.df %>%
 ## Add legend components to the plot
 max.graph2 <- max.graph +
   # Ribbons for the legend area (shifted vertically)
-  geom_ribbon(data = legend.df, aes(ymin = min, ymax = max), fill = "#bdc9e1", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(data = legend.df, aes(ymin = x5, ymax = x95), fill = "#74a9cf", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(data = legend.df, aes(ymin = x20, ymax = x80), fill = "#2b8cbe", alpha = 0.8, na.rm = TRUE) +
-  geom_ribbon(data = legend.df, aes(ymin = x40, ymax = x60), fill = "#045a8d", alpha = 0.8, na.rm = TRUE) +
+  geom_ribbon(
+    data = legend.df,
+    aes(ymin = min, ymax = max),
+    fill = "#bdc9e1",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    data = legend.df,
+    aes(ymin = x5, ymax = x95),
+    fill = "#74a9cf",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    data = legend.df,
+    aes(ymin = x20, ymax = x80),
+    fill = "#2b8cbe",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
+  geom_ribbon(
+    data = legend.df,
+    aes(ymin = x40, ymax = x60),
+    fill = "#045a8d",
+    alpha = 0.8,
+    na.rm = TRUE
+  ) +
   # Line for the current year in the legend area (interpolated between key points)
-  geom_line(data = legend.line.df %>% filter(!is.na(temp)), aes(x = date, y = temp), linewidth = 0.8, color = "black") + # Filter NA temps
+  geom_line(
+    data = legend.line.df %>% filter(!is.na(temp)),
+    aes(x = date, y = temp),
+    linewidth = 0.8,
+    color = "black"
+  ) + # Filter NA temps
   # Example record points (DOTS) in the legend
-  annotate("point", x = min_pt_date, y = min_pt_y_dot, color = "blue", size = 2.5) +
-  annotate("point", x = max_pt_date, y = max_pt_y_dot, color = "red", size = 2.5) +
-  annotate("text",
+  annotate(
+    "point",
+    x = min_pt_date,
+    y = min_pt_y_dot,
+    color = "blue",
+    size = 2.5
+  ) +
+  annotate(
+    "point",
+    x = max_pt_date,
+    y = max_pt_y_dot,
+    color = "red",
+    size = 2.5
+  ) +
+  annotate(
+    "text",
     x = min_pt_date - days(2), # Adjust position relative to dot date
     y = min_pt_y_dot - 2, # Adjust position relative to dot y
-    label = "Rekordtief dieses Jahr", hjust = 0, size = 3
+    label = "Rekordtief dieses Jahr",
+    hjust = 0,
+    size = 3
   ) +
-  annotate("text",
+  annotate(
+    "text",
     x = max_pt_date - days(2), # Adjust position relative to dot date
     y = max_pt_y_dot + 2, # Adjust position relative to dot y
-    label = "Rekordhoch dieses Jahr", hjust = 0, size = 3
+    label = "Rekordhoch dieses Jahr",
+    hjust = 0,
+    size = 3
   ) +
   ggrepel::geom_text_repel(
     data = filter(legend.labels, filter_day == max(filter_day)),
     aes(
-      x = make_date(year = year.to.plot, month = 1, day = 1) + days(filter_day - 1), # provide x aesthetic
-      y = value, label = label
+      x = make_date(year = year.to.plot, month = 1, day = 1) +
+        days(filter_day - 1), # provide x aesthetic
+      y = value,
+      label = label
     ),
-    min.segment.length = 0, size = 3,
-    direction = "y", hjust = 0, nudge_x = 5, # Nudge right
+    min.segment.length = 0,
+    size = 3,
+    direction = "y",
+    hjust = 0,
+    nudge_x = 5, # Nudge right
     na.rm = TRUE
   ) + # Add na.rm
   ggrepel::geom_text_repel(
     data = filter(legend.labels, filter_day == min(filter_day)),
     aes(
-      x = make_date(year = year.to.plot, month = 1, day = 1) + days(filter_day - 1), # provide x aesthetic
-      y = value, label = label
+      x = make_date(year = year.to.plot, month = 1, day = 1) +
+        days(filter_day - 1), # provide x aesthetic
+      y = value,
+      label = label
     ),
-    min.segment.length = 0, size = 3,
-    direction = "y", hjust = 1, nudge_x = -5, # Nudge left
+    min.segment.length = 0,
+    size = 3,
+    direction = "y",
+    hjust = 1,
+    nudge_x = -5, # Nudge left
     na.rm = TRUE
   ) # Add na.rm
 
@@ -334,9 +486,6 @@ max.graph2 <- max.graph +
 dir.create("graphs", showWarnings = FALSE)
 
 # Save the final plot
-ggsave("graphs/DailyHighTemp_dwd.png",
-  plot = max.graph2,
-  width = 8, height = 4
-)
+ggsave("graphs/DailyHighTemp_dwd.png", plot = max.graph2, width = 8, height = 4)
 
 # max.graph2
