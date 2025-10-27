@@ -52,6 +52,9 @@ jobs:
       - name: Build temperature graph
         run:  Rscript -e 'source("R/BuildDailyHigh_dwd.R")'
         
+      - name: Build low temperature graph
+        run:  Rscript -e 'source("R/BuildDailyLow_dwd.R")'
+        
       - name: Build precipitation graph
         run:  Rscript -e 'source("R/BuildCumulativePrecipitation_dwd.R")'
         

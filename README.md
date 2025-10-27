@@ -3,6 +3,7 @@
 Dieses Repository erstellt die untenstehenden Wettergrafiken (inspiriert von [Edward Tufte](https://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=00014g) und [jdjohn215](https://github.com/jdjohn215/milwaukee-weather)). Aktualisierte Daten werden direkt vom Deutschen Wetterdienstes (DWD) bezogen und lokal gespeichert. Der gesamte Prozess wird mithilfe von Github Actions automatisiert.
 
 ![Tägliche Höchsttemperatur in Frankfurt am Main](graphs/DailyHighTemp_dwd.png)
+![Tägliche Tiefsttemperatur in Frankfurt am Main](graphs/DailyLowTemp_dwd.png)
 ![Kumulierter Jahresniederschlag in Frankfurt am Main](graphs/AnnualCumulativePrecipitation_dwd.png)
 
 ## Über diese Daten
@@ -25,6 +26,7 @@ Das Skript `R/Retrieve_dwd.R` lädt die historischen und kürzlichen Tagesdaten 
 Die Grafiken werden aus der Datei `data/clim_clean.csv` generiert:
 
 - Die Grafik `graphs/DailyHighTemp_dwd.png` wird durch das Skript `R/BuildDailyHigh_dwd.R` erstellt.
+- Die Grafik `graphs/DailyLowTemp_dwd.png` wird durch das Skript `R/BuildDailyLow_dwd.R` erstellt.
 - Die Grafik `graphs/AnnualCumulativePrecipitation_dwd.png` wird durch das Skript `R/BuildCumulativePrecipitation_dwd.R` erstellt.
 
 ## Automatische Aktualisierung mit Github Actions
@@ -33,7 +35,7 @@ Der automatisierte Workflow in [/.github/workflows](/.github/workflows) führt r
 
 1. Erstellt neue R Umgebung und installiert die benötigten Pakete aus dem lockfile mit `renv`.
 2. Führt das Skript `R/Retrieve_dwd.R` aus, um die DWD-Daten herunterzuladen und `data/clim_clean.csv` zu aktualisieren.
-3. Führt die Skripte `R/BuildDailyHigh_dwd.R` und `R/BuildCumulativePrecipitation_dwd.R` aus, um die Grafiken im `graphs/`-Ordner neu zu erstellen.
+3. Führt die Skripte `R/BuildDailyHigh_dwd.R`, `R/BuildDailyLow_dwd.R` und `R/BuildCumulativePrecipitation_dwd.R` aus, um die Grafiken im `graphs/`-Ordner neu zu erstellen.
 4. Committet die aktualisierte CSV-Datei (`data/clim_clean.csv`) und die neuen Grafiken (`graphs/*.png`) in das Repository.
 
 Der gesamte Vorgang dauert pro Durchlauf typischerweise etwa 1-2 Minuten.
