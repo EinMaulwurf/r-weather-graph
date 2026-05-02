@@ -22,7 +22,7 @@ jobs:
         with:
           # use Posit's CRAN mirror with precompiled binaries
           use-public-rspm: true
-          r-version: '4.4.2'
+          r-version: '4.6.0'
 
       - name: Set up renv
         uses: r-lib/actions/setup-renv@v2
